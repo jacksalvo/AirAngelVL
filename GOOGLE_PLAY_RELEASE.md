@@ -14,7 +14,9 @@ The helper intentionally handles a first production **draft**, not a production 
 | `Stage -NewEdit -ConfirmNoOtherEdit` | Creates and persists an edit, uploads missing bundle/media, updates en-US text and one production release with status `draft`, then verifies the remote content. Does not commit. |
 | `Stage -EditId ID` | Resumes the exact locally saved plan. Requires the same original input arguments and unchanged files. Already matching bundle/images are reused. |
 | `Validate -EditId ID` | Verifies local files, exact remote draft/bundle/listing/images/notes, and calls Google's edit validation. Does not commit. |
+| `RecoverCommit -EditId ID` | Resolves only a saved `CommitUncertain` attempt after a successful GET of the same active unexpired edit, exact remote candidate checks, unchanged local files, and Google validation. Saves `Validated` locally. Does not create an edit, change remote content, or commit. |
 | `CommitDraft -EditId ID` | Repeats validation, commits with `changesNotSentForReview=true` and `changesInReviewBehavior=ERROR_IF_IN_REVIEW`, and retains release status `draft`. Does not start a production rollout. |
+| `CommitDraft -EditId ID -AllowAutomaticReview` | Explicitly omits `changesNotSentForReview` for apps where Google rejects that parameter. Retains `ERROR_IF_IN_REVIEW` and the exact production draft. Store listing and other eligible changes may enter automatic review; use only with current authorization for that review/submission. |
 
 Do not run `VerifyAccess`, `ListTracks`, `ReadSnapshot`, another publisher, or Console changes alongside an open release edit. Google allows one edit per user per app and other activity may invalidate the edit. The local mutex coordinates instances of this release helper; it cannot coordinate another machine, the Console, or `google-play.ps1`.
 
@@ -22,7 +24,7 @@ Do not run `VerifyAccess`, `ListTracks`, `ReadSnapshot`, another publisher, or C
 
 The helper uses only allowlisted HTTPS paths at `androidpublisher.googleapis.com` and disables redirects. Auth uses the existing helper's fixed Google OAuth endpoint. Uploads hash and transmit the same locked file stream. Error output contains at most a filtered 500-character Google error message; request headers, keys, and tokens are never logged.
 
-Existing icon, feature graphic, or screenshots must match the candidate or its already uploaded prefix. Otherwise `Stage` fails before changing listing/media. After reviewing the remote snapshot, use `-ReplaceExistingMedia` only when replacing that media is authorized. This deletes and replaces the corresponding image type in the uncommitted edit; it does not delete local originals. This helper refuses to replace a different production release or to change a completed/in-progress release.
+Existing icon, feature graphic, or screenshots must match the candidate or its already uploaded prefix. Otherwise `Stage` fails before changing listing/media. After reviewing the remote snapshot, use `-ReplaceExistingMedia` only when replacing that media is authorized. This deletes and replaces the corresponding image type in the uncommitted edit; it does not delete local originals. This helper refuses to replace a different production release or to change a completed/in-progress release. For initial staging, it also accepts the pristine placeholder created by Console when Create release is clicked: exactly one release containing only `status: "draft"`. Any additional name, notes, empty/different version list, rollout setting, or unknown field prevents that placeholder exception. `Validate` and `CommitDraft` still require the complete exact candidate; an empty draft cannot pass those checks.
 
 ## Current candidate example
 
@@ -77,13 +79,26 @@ No release state belongs in Git. The state includes the server edit ID and expir
 
 Staging failures leave the edit uncommitted and its state available for inspection. If the network fails during a request, its outcome can be uncertain: inspect/resume the same edit instead of blindly repeating uploads or creating another edit. If a file changed, reconstruct the exact original candidate or explicitly resolve the old edit before preparing a new one.
 
-Before the commit request the helper saves `CommitUncertain`. After success it saves `CommittedDraft`. Both phases block automatic retry. If a commit fails, times out, or succeeds before the local final write completes, inspect Console and establish the remote result before doing anything further. Do not change the phase merely to bypass this protection. Preserve a copy of resolved state outside Git before archiving it to a distinct filename; only then create a later edit. Expired or invalidated edit metadata likewise needs deliberate resolution and archival. The helper never silently deletes active or historical edit metadata.
+Before a commit request the helper records its review mode and saves `CommitUncertain`. After success it saves `CommittedDraft`. Both phases block automatic retry. A definite HTTP rejection also leaves the uncertainty marker until the server's actual edit state is verified. Never manually change the phase to bypass this protection.
+
+If the same edit remains active after a rejected or interrupted commit, use the explicit `RecoverCommit -EditId <saved-id>` command. It checks the saved profile/package/plan fingerprint, unchanged files, and local expiry, then successfully GETs that same edit and requires its server expiry to remain valid. It verifies the exact remote bundle hash/version, production draft, listing, ordered image hashes, release name and notes, then calls Google validation and checks local files again. Only after every check succeeds does it save the local phase as `Validated` with a recovery timestamp. A missing, committed, expired, different, or changed edit cannot be recovered. Recovery never creates a new edit, modifies remote content, or commits; a separate explicit commit is required.
+
+Google may reject the default hold query with HTTP 400 stating that changes are sent for review automatically and `changesNotSentForReview` must not be set. There is no automatic fallback. After successful recovery and only when automatic review is authorized, use `CommitDraft -EditId <saved-id> -AllowAutomaticReview`. This omits that single parameter while retaining `changesInReviewBehavior=ERROR_IF_IN_REVIEW` and the exact production `draft` status. The store listing and other eligible changes may enter automatic review. It does not promote the draft release to a rollout.
+
+```powershell
+# Use the actual saved ID; inspect the rejection and keep the same edit.
+.\scripts\google-play-release.ps1 -Command RecoverCommit -EditId $staged.editId
+# Separate action, only when automatic review/submission is authorized:
+.\scripts\google-play-release.ps1 -Command CommitDraft -EditId $staged.editId -AllowAutomaticReview
+```
+
+If the edit cannot be recovered, establish the remote result in Console before further work. Preserve a copy of resolved state outside Git before archiving it to a distinct filename; only then create a later edit. Expired or invalidated edit metadata likewise needs deliberate resolution and archival. The helper never silently deletes active or historical edit metadata.
 
 If `ReadSnapshot` cannot delete its temporary edit, it warns with the edit ID. Resolve that edit before publishing elsewhere. No commit is attempted during a snapshot.
 
 ## Verification record
 
-September 6, 2026: the offline self-test passed 22 checks on PowerShell 7 and Windows PowerShell 5.1 with no network requests and no credential reads. `CheckFiles` accepted the reviewed version-code-3 AAB, listing files, icon, feature graphic, and the two updated padded screenshots. PowerShell parsing passed. Live staging, validation, and draft commit were not exercised during helper implementation; record their actual outcomes during publishing.
+September 6, 2026: the offline self-test passed 33 checks on PowerShell 7 and Windows PowerShell 5.1 with no network requests and no credential reads. `CheckFiles` accepted the reviewed version-code-3 AAB, listing files, icon, feature graphic, and the two updated padded screenshots. PowerShell parsing passed. The initial helper implementation used offline verification only. During subsequent publishing, Stage and Validate succeeded for the exact version-code-3 candidate and assets. Google explicitly rejected the first default commit with HTTP 400 because the review-hold parameter was not supported for this app. Subsequent live `RecoverCommit` verified the same active edit and exact candidate, and `CommitDraft -AllowAutomaticReview` succeeded while preserving local `CommittedDraft` state and production version 3 as a draft. The initial draft commit left release 1.0.0 / code 3 available in Console for 177 countries, with setup temporarily at 8/11 and changes not yet submitted. The owner then completed IARC content rating, target audience, and Data safety; the saved answers were verified, and the exact release preview was confirmed and saved. At approximately 2026-09-06 23:14 UTC, 11 changes were submitted through Console. The latest verified state is Changes in review, with quick checks running and managed publishing OFF. The app is not yet approved or live. These are the observed outcomes for this submission, not a guarantee about future automatic-review behavior.
 
 ## Official references
 

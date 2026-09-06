@@ -5,13 +5,14 @@ Stages and verifies AirAngelVL Google Play edits without publishing a release.
 .DESCRIPTION
 Read GOOGLE_PLAY_RELEASE.md first. Commands are explicit; there is no default
 mutation. Stage creates only a production draft. CommitDraft retains draft
-status and requests changesNotSentForReview=true. Submission is a separate
-Console action requiring current authorization. Never run another edits-based
+status and normally requests changesNotSentForReview=true. Explicit opt-in
+can omit that unsupported parameter and allow automatic listing review.
+Production release submission is a separate authorized Console action. Never run another edits-based
 helper or change the app in Console while an edit is open.
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateSet('SelfTest','CheckFiles','ReadSnapshot','Stage','Validate','CommitDraft')]
+    [Parameter(Mandatory)][ValidateSet('SelfTest','CheckFiles','ReadSnapshot','Stage','Validate','RecoverCommit','CommitDraft')]
     [string]$Command,
     [ValidateSet('codex-publisher')][string]$Profile = 'codex-publisher',
     [ValidateSet('com.airangelvl')][string]$PackageName = 'com.airangelvl',
@@ -26,7 +27,8 @@ param(
     [ValidatePattern('^[A-Za-z0-9_-]{1,100}$')][string]$EditId,
     [switch]$NewEdit,
     [switch]$ConfirmNoOtherEdit,
-    [switch]$ReplaceExistingMedia
+    [switch]$ReplaceExistingMedia,
+    [switch]$AllowAutomaticReview
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
@@ -61,7 +63,7 @@ function Assert-ReleaseEndpoint([string]$Method, [string]$Uri) {
         'POST' {
             ($Uri -eq $releaseBase) -or
             ($Uri -match "^$escapedBase/${id}:validate$") -or
-            ($Uri -match "^$escapedBase/${id}:commit\?changesNotSentForReview=true&changesInReviewBehavior=ERROR_IF_IN_REVIEW$") -or
+            ($Uri -match "^$escapedBase/${id}:commit\?(?:changesNotSentForReview=true&)?changesInReviewBehavior=ERROR_IF_IN_REVIEW$") -or
             ($Uri -match "^https://androidpublisher\.googleapis\.com/upload/androidpublisher/v3/applications/$releasePackage/edits/$id/(?:bundles|$images)\?uploadType=media$")
         }
         default { $false }
@@ -220,12 +222,28 @@ function Clear-TemporaryReleaseEdit([scriptblock]$Delete = {
         Write-Warning "Temporary edit cleanup failed (edit $script:releaseTemporaryId). No commit was requested; resolve it before other edit work."
     }
 }
+function Get-ReleaseCommitUri([string]$Id, [bool]$AutomaticReview) {
+    if ($Id -notmatch '^[A-Za-z0-9_-]{1,100}$') { throw 'Invalid commit edit ID.' }
+    $query=if ($AutomaticReview) { 'changesInReviewBehavior=ERROR_IF_IN_REVIEW' }
+        else { 'changesNotSentForReview=true&changesInReviewBehavior=ERROR_IF_IN_REVIEW' }
+    return "$releaseBase/${Id}:commit?$query"
+}
+function Assert-ReleaseStatePhase([string]$Phase, [string]$Action) {
+    if ($Phase -eq 'CommittedDraft') { throw 'This edit was committed. Inspect Console before further work.' }
+    if ($Phase -eq 'CommitUncertain' -and $Action -ne 'RecoverCommit') { throw 'Commit outcome is unresolved. Use RecoverCommit with the saved ID to verify the still-active exact candidate before retrying.' }
+    if ($Action -eq 'RecoverCommit' -and $Phase -ne 'CommitUncertain') { throw 'RecoverCommit requires an unresolved commit attempt; it does not reset other states.' }
+}
+function Assert-CommitRecovery($State, $LiveEdit, $Snapshot) {
+    Assert-ReleaseStatePhase $State.phase 'RecoverCommit'
+    if ($null -eq $LiveEdit -or !$LiveEdit.PSObject.Properties['id'] -or $LiveEdit.id -ne $State.editId -or !$LiveEdit.PSObject.Properties['expiryTimeSeconds'] -or [long]$LiveEdit.expiryTimeSeconds -le [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) { throw 'Recovery requires a successful GET of the same active unexpired edit.' }
+    Assert-RemoteCandidate $Snapshot $State.plan
+}
 function Read-ReleaseState {
     if (!(Test-Path -LiteralPath $releaseStatePath -PathType Leaf)) { throw 'No saved edit. Stage with -NewEdit after checking for other publishing work.' }
     $state = [IO.File]::ReadAllText($releaseStatePath) | ConvertFrom-Json
     if ($state.schemaVersion -ne 1 -or $state.plan.packageName -ne $releasePackage -or $state.plan.profile -ne $releaseProfile -or $state.editId -notmatch '^[A-Za-z0-9_-]{1,100}$' -or (Get-ReleasePlanHash $state.plan) -ne $state.planHash) { throw 'Saved edit metadata failed validation.' }
     if (!$releaseEditArgument -or $releaseEditArgument -ne $state.editId) { throw 'Provide -EditId matching the saved edit. No implicit edit selection is allowed.' }
-    if ($state.phase -in @('CommittedDraft','CommitUncertain')) { throw 'This edit was committed or its commit outcome is uncertain. Inspect Console before further work; do not blindly retry.' }
+    Assert-ReleaseStatePhase $state.phase $releaseCommand
     if ([long]$state.expiryTimeSeconds -le [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) { throw 'The saved edit expired. Inspect Console and archive its local state before creating another edit.' }
     Assert-ReleaseFiles $state.plan
     return $state
@@ -260,7 +278,14 @@ function Assert-ProductionDraft($Snapshot, $Plan, [bool]$AllowEmpty) {
     if ($tracks.Count -gt 1) { throw 'Unexpected duplicate production tracks.' }
     $releases = @(if ($tracks.Count -eq 1) { Get-ReleaseArray $tracks[0] 'releases' })
     if ($AllowEmpty -and $releases.Count -eq 0) { return }
-    if ($releases.Count -ne 1 -or $releases[0].status -ne 'draft' -or @($releases[0].versionCodes).Count -ne 1 -or [string]$releases[0].versionCodes[0] -ne [string]$Plan.versionCode) { throw 'Production contains a different release. This first-release helper will not replace or alter it.' }
+    if ($AllowEmpty -and $releases.Count -eq 1 -and $null -ne $releases[0]) {
+        # Console's first Create release action can leave precisely this empty
+        # placeholder. Only Stage may fill it; names, notes, versions, rollout
+        # settings, and unknown fields make it a nonempty draft.
+        $properties=@($releases[0].PSObject.Properties | ForEach-Object { $_.Name })
+        if ($properties.Count -eq 1 -and $properties[0] -ceq 'status' -and $releases[0].status -ceq 'draft') { return }
+    }
+    if ($releases.Count -ne 1 -or $null -eq $releases[0] -or !$releases[0].PSObject.Properties['status'] -or $releases[0].status -ne 'draft' -or !$releases[0].PSObject.Properties['versionCodes'] -or @($releases[0].versionCodes).Count -ne 1 -or [string]$releases[0].versionCodes[0] -ne [string]$Plan.versionCode) { throw 'Production contains a different release. This first-release helper will not replace or alter it.' }
 }
 function Assert-RemoteCandidate($Snapshot, $Plan) {
     Assert-ProductionDraft $Snapshot $Plan $false
@@ -316,6 +341,27 @@ function Invoke-ReleaseSelfTest {
     if (!$rejected) { throw 'Completed production release accepted.' }; $checks++
     $snapshot.tracks[0].releases[0].status='draft'
     Assert-ProductionDraft $snapshot $plan $false; $checks++
+    $emptyDraft=[pscustomobject]@{tracks=@([pscustomobject]@{track='production';releases=@([pscustomobject]@{status='draft'})})}
+    Assert-ProductionDraft $emptyDraft $plan $true; $checks++
+    $rejected=$false
+    try { Assert-ProductionDraft $emptyDraft $plan $false } catch { $rejected=$true }
+    if (!$rejected) { throw 'Commit validation accepted an empty draft.' }; $checks++
+    foreach ($extra in @(
+        @{name='Existing release'},
+        @{releaseNotes=@()},
+        @{versionCodes=@()},
+        @{versionCodes=@('4')},
+        @{userFraction=0.1},
+        @{unknownMetadata=$null}
+    )) {
+        $draft=[ordered]@{status='draft'}
+        foreach ($key in $extra.Keys) { $draft[$key]=$extra[$key] }
+        $emptyDraft.tracks[0].releases=@([pscustomobject]$draft)
+        $rejected=$false
+        try { Assert-ProductionDraft $emptyDraft $plan $true } catch { $rejected=$true }
+        if (!$rejected) { throw 'A nonempty draft was accepted as a pristine placeholder.' }
+    }
+    $checks++
     $folder=Join-Path ([IO.Path]::GetTempPath()) ('codex-play-release-test-'+[Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $folder | Out-Null
     $filePath=Join-Path $folder 'fixture.txt'
@@ -348,9 +394,62 @@ function Invoke-ReleaseSelfTest {
     $script:releaseTemporaryId=$null
     $script:releaseState=$null
     $script:releaseTestDeletedId=$null
+    $holdUri=Get-ReleaseCommitUri 'offline-edit' $false
+    $automaticUri=Get-ReleaseCommitUri 'offline-edit' $true
+    if ($holdUri -notmatch '\?changesNotSentForReview=true&changesInReviewBehavior=ERROR_IF_IN_REVIEW$') { throw 'Default commit unexpectedly permits automatic review.' }; $checks++
+    if ($automaticUri -notmatch '\?changesInReviewBehavior=ERROR_IF_IN_REVIEW$' -or $automaticUri -match 'changesNotSentForReview') { throw 'Explicit automatic review URI is incorrect.' }
+    Assert-ReleaseEndpoint 'POST' $automaticUri; $checks++
+    foreach ($action in @('Stage','Validate','CommitDraft')) {
+        $rejected=$false
+        try { Assert-ReleaseStatePhase 'CommitUncertain' $action } catch { $rejected=$true }
+        if (!$rejected) { throw 'An unresolved commit allowed a blind retry.' }
+    }
+    $checks++
+    foreach ($phase in @('CommittedDraft','Staged','Validated')) {
+        $rejected=$false
+        try { Assert-ReleaseStatePhase $phase 'RecoverCommit' } catch { $rejected=$true }
+        if (!$rejected) { throw 'Recovery reset an ineligible phase.' }
+    }
+    $checks++
+    $recoveryPlan=[pscustomobject]@{
+        versionCode=3;releaseName='Offline fixture';releaseNotes='Offline notes';
+        listing=[pscustomobject]@{language='en-US';title='Fixture';shortDescription='Short';fullDescription='Full'};
+        files=@(
+            [pscustomobject]@{kind='bundle';sha256=('a'*64)},
+            [pscustomobject]@{kind='icon';sha256=('b'*64)},
+            [pscustomobject]@{kind='featureGraphic';sha256=('c'*64)},
+            [pscustomobject]@{kind='phoneScreenshots';sha256=('d'*64)},
+            [pscustomobject]@{kind='phoneScreenshots';sha256=('e'*64)}
+        )
+    }
+    $recoverySnapshot=[pscustomobject]@{
+        bundles=@([pscustomobject]@{versionCode=3;sha256=('a'*64)});
+        listings=@($recoveryPlan.listing);
+        tracks=@([pscustomobject]@{track='production';releases=@([pscustomobject]@{status='draft';versionCodes=@('3');name='Offline fixture';releaseNotes=@([pscustomobject]@{language='en-US';text='Offline notes'})})});
+        images=[pscustomobject]@{icon=@([pscustomobject]@{sha256=('b'*64)});featureGraphic=@([pscustomobject]@{sha256=('c'*64)});phoneScreenshots=@([pscustomobject]@{sha256=('d'*64)},[pscustomobject]@{sha256=('e'*64)})}
+    }
+    $recoveryState=[pscustomobject]@{phase='CommitUncertain';editId='offline-edit';plan=$recoveryPlan}
+    $activeEdit=[pscustomobject]@{id='offline-edit';expiryTimeSeconds='9999999999'}
+    Assert-CommitRecovery $recoveryState $activeEdit $recoverySnapshot; $checks++
+    foreach ($invalidEdit in @($null,[pscustomobject]@{id='other-edit';expiryTimeSeconds='9999999999'},[pscustomobject]@{id='offline-edit';expiryTimeSeconds='0'})) {
+        $rejected=$false
+        try { Assert-CommitRecovery $recoveryState $invalidEdit $recoverySnapshot } catch { $rejected=$true }
+        if (!$rejected) { throw 'Recovery accepted a missing, different, or expired live edit.' }
+    }
+    $checks++
+    $recoverySnapshot.bundles[0].sha256=('f'*64)
+    $rejected=$false
+    try { Assert-CommitRecovery $recoveryState $activeEdit $recoverySnapshot } catch { $rejected=$true }
+    if (!$rejected) { throw 'Recovery accepted a changed remote candidate.' }; $checks++
+    $recoverySnapshot.bundles[0].sha256=('a'*64)
+    $recoverySnapshot.tracks[0].releases[0].status='completed'
+    $rejected=$false
+    try { Assert-CommitRecovery $recoveryState $activeEdit $recoverySnapshot } catch { $rejected=$true }
+    if (!$rejected) { throw 'Recovery accepted a nondraft production release.' }; $checks++
     [pscustomobject]@{result='Passed';checks=$checks;networkRequests=0;credentialsRead=$false}
 }
 
+if ($AllowAutomaticReview -and $releaseCommand -ne 'CommitDraft') { throw '-AllowAutomaticReview is valid only for an explicitly authorized CommitDraft.' }
 if ($releaseCommand -eq 'SelfTest') { Invoke-ReleaseSelfTest; return }
 if ($releaseCommand -eq 'CheckFiles') {
     $plan=New-ReleasePlan
@@ -438,21 +537,33 @@ try {
         [pscustomobject]@{result='Staged';editId=$id;statePath=$releaseStatePath;track='production';status='draft';committed=$false}
         return
     }
-    if ($releaseState.phase -notin @('Staged','Validated')) { throw 'The edit is not fully staged. Resume Stage with the exact original inputs first.' }
-    Assert-RemoteCandidate (Get-ReleaseSnapshot $id) $plan
+    if ($releaseCommand -eq 'RecoverCommit') {
+        # The GET above must succeed for this same ID. A committed/expired edit
+        # cannot be recovered, and recovery cannot create or modify an edit.
+        Assert-CommitRecovery $releaseState $liveEdit (Get-ReleaseSnapshot $id)
+    } else {
+        if ($releaseState.phase -notin @('Staged','Validated')) { throw 'The edit is not fully staged. Resume Stage with the exact original inputs first.' }
+        Assert-RemoteCandidate (Get-ReleaseSnapshot $id) $plan
+    }
     $null=Invoke-ReleaseApi 'POST' "$uri`:validate"
     Assert-ReleaseFiles $plan
+    if ($releaseCommand -eq 'RecoverCommit') {
+        $releaseState | Add-Member -NotePropertyName recoveredCommitUtc -NotePropertyValue ([DateTimeOffset]::UtcNow.ToString('o')) -Force
+    }
     $releaseState.phase='Validated'; Save-ReleaseState
-    if ($releaseCommand -eq 'Validate') {
-        [pscustomobject]@{result='Validated';editId=$id;versionCode=$plan.versionCode;track='production';status='draft';committed=$false}
+    if ($releaseCommand -in @('Validate','RecoverCommit')) {
+        $resultName=if ($releaseCommand -eq 'RecoverCommit') { 'RecoveredCommit' } else { 'Validated' }
+        [pscustomobject]@{result=$resultName;editId=$id;versionCode=$plan.versionCode;track='production';status='draft';committed=$false}
         return
     }
     # Save an uncertainty marker before sending the only commit request. A
     # timeout must not lead a future session to blindly repeat the commit.
+    $reviewMode=if ($AllowAutomaticReview) { 'AutomaticReviewAllowed' } else { 'HoldRequested' }
+    $releaseState | Add-Member -NotePropertyName commitReviewMode -NotePropertyValue $reviewMode -Force
     $releaseState.phase='CommitUncertain'; Save-ReleaseState
-    $null=Invoke-ReleaseApi 'POST' "$uri`:commit?changesNotSentForReview=true&changesInReviewBehavior=ERROR_IF_IN_REVIEW"
+    $null=Invoke-ReleaseApi 'POST' (Get-ReleaseCommitUri $id $AllowAutomaticReview.IsPresent)
     $releaseState.phase='CommittedDraft'; Save-ReleaseState
-    [pscustomobject]@{result='CommittedDraft';editId=$id;versionCode=$plan.versionCode;track='production';status='draft';changesNotSentForReview=$true;productionRolloutStarted=$false;statePath=$releaseStatePath}
+    [pscustomobject]@{result='CommittedDraft';editId=$id;versionCode=$plan.versionCode;track='production';status='draft';holdParameterSent=(!$AllowAutomaticReview);automaticListingReviewAllowed=$AllowAutomaticReview.IsPresent;productionRolloutStarted=$false;statePath=$releaseStatePath}
 } finally {
     if ($releaseTemporaryId -and $releaseToken) {
         Clear-TemporaryReleaseEdit
