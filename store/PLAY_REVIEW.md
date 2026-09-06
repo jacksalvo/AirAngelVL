@@ -7,7 +7,7 @@ Prepared September 6, 2026 from the shipping source and existing merged release 
 - Owner confirmed the public support email is `coppercanyonanesthesia@gmail.com`. This is separate from the Play account owner `jacksalvo@gmail.com`.
 - Owner clarified that this app is a training and simulation companion for the AirAngel Video Laryngoscope nonprofit project, not a medical device or patient-care tool. It may support other UVC cameras; no combination is guaranteed. Keep the training-only purpose consistent across the app, screenshots, listing and policy.
 - Owner confirmed there is no medical-device approval in any country and that this app is used for training. The listing explicitly prohibits clinical use and includes the health-app disclaimer. Absence of a clinical approval is not itself a blocker for the declared training-only purpose. Do not suggest authorization for patient care outside the United States. If the intended functionality or marketing later changes to clinical use, reassess the declarations and applicable requirements before that change ships.
-- Confirm price, distribution countries, target audience and release track/rollout. Source code does not determine these account choices.
+- Owner confirmed free, worldwide availability with no age limits and asked to proceed with the first production release. Do not enable Restrict minor access. Target audience describes whom the app was designed for and is separate from availability/content rating; do not automatically mark every child age group merely to allow downloads. Complete the live forms truthfully for the USB camera/training purpose. [Audience guidance](https://support.google.com/googleplay/android-developer/answer/9867159?hl=en)
 
 ## Ready text
 
@@ -15,7 +15,7 @@ Prepared September 6, 2026 from the shipping source and existing merged release 
 - Short description: `en-US/short-description.txt` (limit 80; verify with the included character check before upload).
 - Full description: `en-US/full-description.txt` (limit 4,000; explicitly training and simulation only).
 - Release notes: `en-US/release-notes.txt` (limit 500 per language).
-- Privacy policy: `privacy-policy.txt` for an offline in-app screen and a publicly accessible policy page with identical content. The project name identifies the app, as required; adding the final Play developer display name is optional if desired.
+- Privacy policy: `privacy-policy.txt` for the offline in-app screen. The public policy is https://jacksalvo.github.io/AirAngelVL/privacy-policy.html. GitHub Pages returned unauthenticated HTTP 200 on September 6, 2026; its HTML exactly matches docs/privacy-policy.html and store/privacy-policy.html. Publish future changes to both copies and the in-app text together.
 
 Google specifies listing text limits and requires a public contact email. [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152?hl=en)
 
@@ -50,7 +50,7 @@ Document the exact known-working camera and adapter if the owner supplies them; 
 
 - High-resolution app icon: 512 x 512 PNG, up to 1,024 KB.
 - Feature graphic: 1,024 x 500 JPEG or PNG without alpha.
-- At least two phone screenshots: JPEG or PNG without alpha, dimensions 320-3,840 pixels, longest side no more than twice the shortest. Keep originals. The user's Pixel captures may need fitting/cropping if their aspect exceeds 2:1.
+- Two approved final screenshots are in graphics/phone-screenshots: 1964 x 982 and 2072 x 1036 RGB PNG. The owner authorized scripted neutral borders; every original pixel was preserved. verification.json records hashes and crop equality checks. The original files remain untouched in the task folder.
 - Screenshots should represent the final release UI. Prefer new captures after removing the Test label. If preparing layout edits, preserve the actual camera content and do not invent a successful state or obscure a material warning. Label mannequin imagery as simulation if used to avoid implying patient validation.
 - Add concise alt text for each approved screenshot; write it after inspecting the selected image.
 - Do not advertise guaranteed compatibility, guaranteed save recovery, clinical approval, or guaranteed absence of all vulnerabilities. The audit found no ad/tracking implementation, but "malware-free" is not an independent security certification.
@@ -72,7 +72,7 @@ The asset formats above are mandatory; four high-resolution screenshots are an a
 
 ## Final checks before submission
 
-1. Confirm distribution countries, price, target audience and release track/rollout, and validate description lengths. Support email, project identity and training-only intended use are confirmed. Do not treat lack of clinical approval as a publication blocker for this declared training-only app.
+1. Use the confirmed free, worldwide, unrestricted-access launch choices and validate description lengths. Complete audience and rating answers based on actual design/content. Support email, project identity and training-only intended use are confirmed. Do not treat lack of clinical approval as a publication blocker for this declared training-only app.
 2. Verify final release package, version, permissions, network-free dependency graph and branding from the artifact, not just sources.
 3. Recheck both ABI contents and 16 KB alignment after the publishing toolchain changes.
 4. Install the signed/minified candidate on the known-working phone/camera and confirm preview, capture, video playback and gallery saves. Preserve signing continuity and existing media.

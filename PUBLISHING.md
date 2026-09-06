@@ -36,7 +36,15 @@ The signed/minified 1.0.0 APK was installed wirelessly on the same Pixel and lau
 ## Before submission
 
 1. Recheck the minified candidate on the known-working camera and take two updated screenshots. The owner supplied updated screenshots with AirAngel VL branding and Camera ready on September 6. Approved neutral padding preserves every original pixel and meets Play's 2:1 limit; final PNGs are in store/graphics/phone-screenshots. Originals remain untouched in the task folder.
-2. Publish the policy HTML at a stable, public URL and open it without login. The HTML is prepared locally; there is no live privacy-policy URL yet.
+2. The privacy policy is live at https://jacksalvo.github.io/AirAngelVL/privacy-policy.html. GitHub Pages uses main /docs with HTTPS enforced. Deployment 34055714456 succeeded for commit 2660204; unauthenticated HTTP 200 and exact HTML content match were verified on September 6, 2026.
 3. Owner confirmed free, worldwide, no age limits and asked to proceed. Complete the live audience/content-rating and production-release forms accordingly. Complete live content rating and health education/training declarations with the owner; the intended use is not patient care or a regulated clinical claim.
 4. Create the first app entry, configure Play App Signing and record its delivery certificate, then upload the reviewed signed bundle and assets. The local upload key is distinct from a Google-managed app signing key; avoid treating a locally sideloaded APK as interchangeable with the future Play-signed installation.
 5. Publish corresponding source/license notices and submit only after the exact store material, artifact and release settings have been reviewed. Recheck any new requirements shown by the live Console.
+
+## Submission continuation (September 6, 2026)
+
+The release source and approved store assets are public in commit 2660204. No AirAngel app has been created in Play Console and no API edit/upload has started. The Create app form contains AirAngel VL, com.airangelvl (available), English (United States), App and Free.
+
+The owner approved screenshot padding. A separate question remains unanswered: approval of Google's Developer Program Policies and US export declarations, together with disabling the optional installer check that otherwise prompts sideloaded users to get the app from Play. Leave the declaration checkboxes untouched until that answer arrives. Do not infer approval from the screenshot answer.
+
+The API staging workflow is documented in GOOGLE_PLAY_RELEASE.md. Use the exact reviewed bundle hash and approved PNG files. Do not run another edits-based access check or alter the app in Console while an API edit is open. This helper stages and commits a draft only; actual review submission remains a separate action. Check current live Console requirements and existing review/release state before proceeding.
