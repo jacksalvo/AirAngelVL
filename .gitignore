@@ -29,3 +29,9 @@
 .env
 .env.*
 !.env.example
+*.dpapi
+*.p12
+*.pem
+*service-account*.json
+*service_account*.json
+/google-play.local.json

@@ -1,0 +1,33 @@
+AirAngel VL is an offline USB camera viewer and recorder for training and simulation with the AirAngel Video Laryngoscope project. Connect a compatible USB camera to your Android phone, view its live image, and save photos or silent video for teaching and practice.
+
+The wider AirAngel Project is a not-for-profit resource center created to make video laryngoscopy more accessible in under-resourced settings and to support simulation training. The nonprofit reports that its systems have been used by thousands of clinicians in developing countries worldwide. AirAngel VL supports the project's training and simulation work. Project information: https://www.airangelblade.org.
+
+LOCAL BY DESIGN
+No ads. No tracking. No analytics SDKs. No accounts. No data scraping. AirAngel VL processes the camera image and saves your media on your device, without an internet connection or uploads to the developer.
+
+VIEW AND CAPTURE
+- Preview a compatible USB UVC camera in landscape.
+- Capture JPEG photos and record silent H.264/MP4 video.
+- Adjust brightness, contrast, and saturation. Your adjustments apply to the preview and saved media.
+- Keep the full camera image or choose a centered 16:9, 5:4, or 4:3 crop.
+- Keep your image settings between sessions.
+- Find saved files in your gallery under Pictures/AirAngelVL and Movies/AirAngelVL.
+
+RECORDING THAT STAYS UNDER YOUR CONTROL
+Start and stop recording yourself. Leaving the app, locking the screen, or disconnecting the camera stops and saves an active recording. Recording does not resume automatically. The app monitors available storage and supported Android thermal warnings. Videos contain no audio. Saved output is limited to 720p; resolution and frame rate depend on your phone and camera.
+
+HARDWARE REQUIRED
+For an AirAngel training setup, you need an AirAngel blade, a compatible USB UVC camera, and an Android phone with USB host/OTG support, plus any necessary cable or adapter. The phone must provide enough power for the camera. The app may also work with other USB UVC inspection cameras, but no particular camera or phone combination is guaranteed.
+
+Android 7.0 or newer is required. The build supports ARM 32-bit and ARM 64-bit phones. Compatibility depends on the phone, camera, adapter, and Android software. MJPEG and YUYV modes are supported where the camera advertises a usable mode. Wi-Fi cameras are not supported. Compatible external hardware is required for camera viewing and recording.
+
+YOUR MEDIA, YOUR CHOICES
+AirAngel VL does not upload your recordings. Other gallery apps or backup services may sync saved media according to your settings, so review those settings if you want files to remain only on your phone.
+
+OPEN SOURCE
+AirAngel VL's original code is licensed under GPL-3.0. Third-party components retain their own licenses. Source code and issue reporting: https://github.com/jacksalvo/AirAngelVL
+
+TRAINING AND SIMULATION ONLY
+AirAngel VL is not a medical device and does not diagnose, treat, cure, or prevent any medical condition. Do not use this app for patient care, clinical decision-making, or airway management on a person. It has no medical-device approval in any country. For medical advice, consult a qualified health professional. The wider AirAngel Project states that its system has not been reviewed or approved by the FDA and must not be used for medical purposes in the United States. That project's history does not change this app's training-only purpose.
+
+Support and privacy questions: coppercanyonanesthesia@gmail.com

@@ -11,6 +11,18 @@ require(validationAbi == null || validationAbi == "x86_64") {
     "validationAbis is reserved for the x86_64 emulator build"
 }
 
+// Secrets are supplied only for the lifetime of scripts/release-signing.ps1.
+// A checkout without local credentials still supports unsigned release builds.
+val uploadSigningVariables = listOf(
+    "AAVL_UPLOAD_STORE_FILE", "AAVL_UPLOAD_STORE_PASSWORD",
+    "AAVL_UPLOAD_KEY_ALIAS", "AAVL_UPLOAD_KEY_PASSWORD"
+)
+val uploadSigningValues = uploadSigningVariables.map { providers.environmentVariable(it).orNull }
+val hasUploadSigning = uploadSigningValues.any { it != null }
+require(!hasUploadSigning || uploadSigningValues.all { !it.isNullOrBlank() }) {
+    "Upload signing requires all four AAVL_UPLOAD_* environment values; partial configuration is not allowed."
+}
+
 android {
     namespace = "com.airangelvl.app"
     compileSdk = extra["compileSdk"] as Int
@@ -20,11 +32,24 @@ android {
         applicationId = "com.airangelvl"
         minSdk = extra["minSdk"] as Int
         targetSdk = extra["targetSdk"] as Int
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters += if (validationAbi == null) setOf("armeabi-v7a", "arm64-v8a") else setOf(validationAbi)
+        }
+    }
+
+    signingConfigs {
+        if (hasUploadSigning) {
+            create("upload") {
+                storeFile = file(requireNotNull(uploadSigningValues[0]))
+                require(storeFile!!.isFile) { "The configured upload keystore does not exist." }
+                storePassword = uploadSigningValues[1]
+                keyAlias = uploadSigningValues[2]
+                keyPassword = uploadSigningValues[3]
+                storeType = "PKCS12"
+            }
         }
     }
 
@@ -32,9 +57,9 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             applicationIdSuffix = if (validationAbi == null) ".debug" else ".validation"
-            resValue("string", "app_name", if (validationAbi == null) "AirAngel VL Test" else "AirAngel VL Validation")
         }
         getByName("release") {
+            if (hasUploadSigning) signingConfig = signingConfigs.getByName("upload")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

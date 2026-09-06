@@ -17,7 +17,7 @@ $jdk = Join-Path $ToolchainDirectory $jdkName
 if (!(Test-Path -LiteralPath $jdk)) { Expand-Archive -LiteralPath $archive -DestinationPath $ToolchainDirectory }
 & (Join-Path $jdk 'bin\java.exe') -version
 if ($LASTEXITCODE -ne 0) { throw 'JDK verification failed.' }
-$requiredPackages = @('platforms\android-34', 'build-tools\34.0.0', 'build-tools\35.0.0', 'ndk\27.0.12077973')
+$requiredPackages = @('platforms\android-36', 'build-tools\35.0.0', 'ndk\27.0.12077973')
 $missing = @($requiredPackages | Where-Object { !(Test-Path -LiteralPath (Join-Path $SdkRoot $_)) })
 if ($missing.Count -gt 0) {
     throw ('Install these Android SDK packages using SDK Manager: ' + ($missing -join ', '))
@@ -29,7 +29,7 @@ $gradleDirectory = Join-Path $repoRoot '.gradle'
 New-Item -ItemType Directory -Path $gradleDirectory -Force | Out-Null
 $studioConfig = Join-Path $gradleDirectory 'config.properties'
 $studioProperties = if (Test-Path -LiteralPath $studioConfig) { @(Get-Content -LiteralPath $studioConfig) } else { @() }
-$javaProperty = 'java.home=' + (Resolve-Path -LiteralPath $jdk).Path.Replace('\', '/')
+$javaProperty = 'java.home=' + (Resolve-Path -LiteralPath $jdk).Path.Replace('\', '/').Replace(':', '\:')
 $foundJavaProperty = $false
 $studioProperties = @($studioProperties | ForEach-Object {
     if ($_ -match '^\s*java\.home\s*[:=]') {
@@ -38,7 +38,7 @@ $studioProperties = @($studioProperties | ForEach-Object {
     } else { $_ }
 })
 if (!$foundJavaProperty) { $studioProperties += $javaProperty }
-[System.IO.File]::WriteAllLines($studioConfig, [string[]]$studioProperties, (New-Object System.Text.UTF8Encoding $false))
+[System.IO.File]::WriteAllText($studioConfig, ($studioProperties -join "`n") + "`n", (New-Object System.Text.UTF8Encoding $false))
 Write-Output "Portable JDK verified at $jdk"
 Write-Output "Android Studio project-local JDK configured in $studioConfig"
 Write-Output "Build with: .\scripts\build.ps1 -JavaHome '$jdk' -SdkRoot '$SdkRoot' -Verify"

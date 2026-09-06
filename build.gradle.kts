@@ -8,15 +8,15 @@ plugins {
 }
 
 allprojects {
-    extensions.extraProperties["compileSdk"] = 34
+    extensions.extraProperties["compileSdk"] = 36
     extensions.extraProperties["minSdk"] = 24
-    extensions.extraProperties["targetSdk"] = 34
+    extensions.extraProperties["targetSdk"] = 36
 }
 
 tasks.wrapper {
-    gradleVersion = "8.7"
+    gradleVersion = "8.11.1"
     distributionType = Wrapper.DistributionType.BIN
-    distributionSha256Sum = "544c35d6bd849ae8a5ed0bcea39ba677dc40f49df7d1835561582da2009b961d"
+    distributionSha256Sum = "f397b287023acdba1e9f6fc5ea72d22dd63669d59ed4a289a29b1a76eee151c6"
     networkTimeout.set(60_000)
 }
 

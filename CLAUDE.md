@@ -1,6 +1,6 @@
 # Development guidance
 
-AirAngelVL 0.2.0 is a USB-only Android inspection-camera app. The supported build contract is minimum API 24, compile/target API 34, and a universal ARM32/ARM64 APK. See BUILDING.md for the pinned toolchain and commands; use scripts/build.ps1 on this Windows host.
+AirAngelVL 1.0.0 is a USB-only Android camera app for AirAngel training and simulation. The supported build contract is minimum API 24, compile/target API 36, and a universal ARM32/ARM64 APK. See BUILDING.md for the pinned toolchain and commands; use scripts/build.ps1 on this Windows host.
 
 ## Scope and ownership
 
@@ -22,5 +22,5 @@ Run scripts/build.ps1 -Verify and scripts/verify-native.ps1 on both APKs after r
 
 VALIDATION.md records actual outcomes. USB_ENDOSCOPE_TESTING.md records remaining physical acceptance. Do not claim startup latency, frame-drop rate, sustained-use performance, temperature thresholds or phone compatibility without measurements. OS thermal status is not a temperature measurement.
 
-The debug app is com.airangelvl.debug (AirAngel VL Test), separate from the original. The minified release retains com.airangelvl and requires the established signing key for an in-place update. The x86_64 validation app is a separate emulator artifact.
+The debug app is com.airangelvl.debug (AirAngel VL), separate from the original. The minified release retains com.airangelvl and requires the established signing key for an in-place update. The x86_64 validation app is a separate emulator artifact.
 

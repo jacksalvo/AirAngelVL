@@ -20,7 +20,7 @@ Record a separate result for each phone/Android/camera/adapter combination. The 
 | ARM64, Android 13–16 / API 33–36 | Physical phones | Permissions, gallery, repeated lifecycle | Pending |
 | Samsung, recent Android | Physical One UI phone | Supported camera set and AVC colors | Pending |
 | Qualcomm and MediaTek | Physical phones | Codec fallback; sustained recording | Pending |
-| Pixel, Android 17 / API 37 (current stable major release) | Physical phone | Permissions, lifecycle, gallery | Offscreen JNI/graphics passed on Pixel 10 Pro XL; UVC and gallery acceptance pending |
+| Pixel, Android 17 / API 37 (current stable major release) | Physical phone | Permissions, lifecycle, gallery | Owner reports USB connection, preview, photos and video worked on Pixel 10 Pro XL with 0.2.0 debug; final minified 1.0.0 recheck pending |
 | ARM64, 16 KB pages | Physical supported device | Minified release native load and capture | Pending |
 
 ## Cases
@@ -40,5 +40,5 @@ Record a separate result for each phone/Android/camera/adapter combination. The 
 A forcibly killed process, an unresponsive kernel USB call, or a vendor codec stuck in native code can prevent normal finalization. Keep such failures separate from graceful background/lock/disconnect behavior. Preserve completed media; only the app's newly created unfinished targets may be removed.
 
 
-The current stable major release was checked on September 6, 2026 against [Google's Android 17 release announcement](https://developer.android.com/blog/posts/android-17-is-here), dated June 16, 2026. This does not change this repair release's target SDK 34.
+The current stable major release was checked on September 6, 2026 against [Google's Android 17 release announcement](https://developer.android.com/blog/posts/android-17-is-here), dated June 16, 2026. The publishing candidate targets API 36; this remains separate from its runtime OS coverage.
 

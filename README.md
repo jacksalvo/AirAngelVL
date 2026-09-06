@@ -1,6 +1,6 @@
 # AirAngelVL
 
-AirAngelVL displays a USB UVC camera feed and saves photos and silent H.264/MP4 video. This repair release targets Android 7.0 (API 24) and newer, with a universal ARM32/ARM64 APK.
+AirAngelVL displays a USB UVC camera feed and saves photos and silent H.264/MP4 video. Version 1.0.0 supports Android 7.0 (API 24) and newer, targets API 36, and packages ARM32/ARM64 native libraries. It is a training and simulation camera companion for the [Air Angel Video Laryngoscope nonprofit project](https://www.airangelblade.org/); other compatible UVC cameras may also work.
 
 ## License and contributing
 
@@ -22,15 +22,15 @@ The phone must supply USB host support, sufficient camera power, and usable UVC 
 
 ## Build and test
 
-See [BUILDING.md](BUILDING.md) for the pinned JDK 17 / Gradle 8.7 / AGP 8.5.2 / NDK 27 setup.
+See [BUILDING.md](BUILDING.md) for the pinned JDK 17 / Gradle 8.11.1 / AGP 8.10.1 / NDK 27 setup.
 
 ```powershell
 .\scripts\setup-toolchain.ps1
 .\scripts\build.ps1 -Verify
 ```
 
-- Debug: package `com.airangelvl.debug`, launcher **AirAngel VL Test**, signed with the local Android debug key. It can coexist with the original app.
-- Release: package `com.airangelvl`, minified, unsigned until signed with the established app key. Do not uninstall an existing app just to work around a signing mismatch.
+- Debug: package `com.airangelvl.debug`, launcher **AirAngel VL**, signed with the local Android debug key. It can coexist with the original app.
+- Release: package `com.airangelvl`, minified; signed for publication using the private upload key (see RELEASE_SIGNING.md). Do not uninstall an existing app just to work around a signing mismatch.
 - Emulator validation: a separate x86_64/package build; it is not the ARM phone deliverable.
 
 [VALIDATION.md](VALIDATION.md) records executed checks and limitations. [USB_ENDOSCOPE_TESTING.md](USB_ENDOSCOPE_TESTING.md) is the physical-device acceptance checklist. Passing builds and synthetic tests does not establish compatibility with an untested phone/camera combination.
@@ -46,8 +46,12 @@ Generated APKs, device logs, screenshots and machine-specific settings are kept 
 
 Wi-Fi, updater, and dynamic-feature folders remain preserved but are outside the shipping dependency graph. The application does not perform network discovery, automatic updates, or background recording.
 
-## Beta status
+## Intended use and privacy
 
-This is a beta inspection-camera application. It is not a medical device and is not intended for diagnosis, treatment, or clinical decision-making. Existing media is not migrated or deleted by this release.
+This app is for training and simulation only. It is not a medical device and does not diagnose, treat, cure, or prevent any medical condition. Consult a qualified healthcare professional for medical advice, diagnosis, or treatment. Do not use this app for patient care.
+
+The wider AirAngel project supports under-resourced settings, medical missions, and simulation training. Its system has not been reviewed or approved by the US FDA and must not be used for medical purposes in the USA.
+
+The app contains no ads, analytics or tracking SDKs, requires no account, and has no internet permission. It processes and saves media locally; other gallery or backup apps may sync those files according to their own settings. Existing media is not migrated or deleted. Read the in-app privacy policy under Settings or the policy in `store/privacy-policy.txt`.
 
 

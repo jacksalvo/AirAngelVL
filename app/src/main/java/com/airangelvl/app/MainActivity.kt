@@ -212,6 +212,21 @@ class MainActivity : AppCompatActivity() {
                 applyAdjustments(defaults)
             }
 
+        sheet.findViewById<View>(R.id.button_privacy_policy).setOnClickListener {
+            val policy = assets.open("privacy-policy.txt").bufferedReader().use { it.readText() }
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.privacy_policy_title)
+                .setMessage(policy)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+        sheet.findViewById<View>(R.id.button_about).setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.about_title)
+                .setMessage(R.string.about_message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
         dialog.show()
     }
 

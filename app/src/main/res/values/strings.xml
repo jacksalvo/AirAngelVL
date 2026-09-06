@@ -32,4 +32,7 @@
     <string name="open_app_settings">Open app settings</string>
     <string name="settings_saved_image">These adjustments apply to preview, photos, and video. Recording stops and saves when the app goes into the background.</string>
     <string name="settings_recording_framing">Stop recording to change the aspect ratio. Brightness, contrast, and saturation still apply to preview, photos, and video.</string>
+    <string name="privacy_policy_title">Privacy policy</string>
+    <string name="about_title">About AirAngel VL</string>
+    <string name="about_message">USB camera companion for training and simulation with the Air Angel Video Laryngoscope nonprofit project. Requires a compatible USB UVC camera and a phone with USB host/OTG support. Other compatible USB cameras may also work.\n\nThis app is for training and simulation only. It is not a medical device and does not diagnose, treat, cure, or prevent any medical condition. Consult a qualified healthcare professional for medical advice, diagnosis, or treatment. Do not use this app for patient care.\n\nThe wider AirAngel system has not been reviewed or approved by the US FDA and must not be used for medical purposes in the USA.\n\nNo ads, tracking, accounts, or uploads. Photos and silent video are processed and saved on your device. Other gallery or backup apps may sync saved media according to their own settings.\n\nProject: https://www.airangelblade.org/\nSupport: coppercanyonanesthesia@gmail.com\nSource: https://github.com/jacksalvo/AirAngelVL</string>
 </resources>

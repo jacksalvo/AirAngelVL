@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+<rect width="1024" height="500" fill="#15222f"/>
+<rect x="64" y="68" width="40" height="5" fill="#3B82F6"/>
+<g font-family="Arial, sans-serif" fill="#f6f8fb">
+<text x="64" y="164" font-size="64" font-weight="700">AirAngel VL</text>
+<text x="66" y="223" font-size="27">USB camera companion</text>
+<text x="66" y="269" font-size="20" fill="#b4c3d3">For the AirAngel nonprofit project</text>
+<path d="M66 332H570" stroke="#405264"/>
+<text x="66" y="377" font-size="20" fill="#d6e2f0">On-device · Ad-free · Open source</text>
+</g>
+<g transform="translate(660 111)">
+<rect x="0" y="0" width="276" height="276" rx="26" fill="#1f3245" stroke="#3c5570" stroke-width="2"/>
+<path d="M26 67V27H66M210 27H250V67M26 209V249H66M210 249H250V209" fill="none" stroke="#80acdf" stroke-width="3"/>
+<g transform="translate(30 30) scale(2)"><path fill="#3B82F6" d="M54,16a38,38 0 1,1 0,76a38,38 0 0,1 0,-76zm0,12a26,26 0 1,0 0,52a26,26 0 0,0 0,-52zm0,16a10,10 0 1,1 0,20a10,10 0 0,1 0,-20z"/></g>
+</g>
+</svg>

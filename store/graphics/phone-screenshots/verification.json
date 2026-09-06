@@ -1,0 +1,34 @@
+[
+  {
+    "file": "01-training-preview.png",
+    "source": "Play Store Pic 1.png",
+    "originalSize": [
+      1964,
+      882
+    ],
+    "outputSize": [
+      1964,
+      982
+    ],
+    "paddingLeft": 0,
+    "paddingTop": 50,
+    "originalPixelsPreserved": true,
+    "sha256": "ca2f65fa93f3b8f7360b36b11ac3396f41b56c341bee22826ffb86017eebd68f"
+  },
+  {
+    "file": "02-training-preview.png",
+    "source": "Play Store Pic 2.png",
+    "originalSize": [
+      2072,
+      931
+    ],
+    "outputSize": [
+      2072,
+      1036
+    ],
+    "paddingLeft": 0,
+    "paddingTop": 52,
+    "originalPixelsPreserved": true,
+    "sha256": "8456be21beb23a8305a79706ede0981a25ca0e7a027bcf637ead297bdfd39f28"
+  }
+]

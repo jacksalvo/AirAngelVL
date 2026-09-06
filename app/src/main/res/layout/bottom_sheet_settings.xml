@@ -184,6 +184,22 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/settings_reset_image" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_privacy_policy"
+            style="@style/Widget.AirAngel.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/privacy_policy_title" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_about"
+            style="@style/Widget.AirAngel.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/about_title" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
 

@@ -1,0 +1,50 @@
+AirAngel VL Privacy Policy
+Effective date: September 6, 2026
+
+AirAngel VL is a USB camera viewer and recorder for training and simulation with the AirAngel Video Laryngoscope project. It displays a connected USB camera and saves photos and silent video on your Android device. It works without an account or an internet connection. The app does not upload your camera feed, recordings, settings, or diagnostic information to the developer or to third parties.
+
+Training and simulation only
+
+AirAngel VL is not a medical device and does not diagnose, treat, cure, or prevent any medical condition. Do not use this app for patient care, clinical decision-making, or airway management on a person. It has no medical-device approval in any country. For medical advice, consult a qualified health professional.
+
+No advertising or tracking
+
+AirAngel VL contains no advertising, advertising SDKs, analytics SDKs, or tracking SDKs. It does not scrape your data, build advertising profiles, sell user data, or include an automatic crash-reporting service. The shipping app does not request Android's Internet permission.
+
+Camera images and recordings
+
+The app processes the connected USB camera's image locally to display the preview and apply your chosen brightness, contrast, saturation, and framing. Photos and videos are saved only when you use the capture or recording controls. Video recordings do not include audio, and the app does not request microphone permission.
+
+Saved photos go to Pictures/AirAngelVL and saved videos go to Movies/AirAngelVL in your device's shared media storage. Gallery and file-management apps may access these files according to Android permissions. Google Photos, another gallery app, a backup service, or a sharing action you choose may copy or upload them according to that service's settings and privacy policy. AirAngel VL does not control those services and does not itself upload the files.
+
+Permissions and device information
+
+Camera permission and Android's separate USB-access approval let the app connect to a compatible USB camera. On Android 7 through 9, Storage permission is also needed to save media to the gallery. On newer Android versions, AirAngel VL saves its own media through Android's media-storage service without that legacy permission.
+
+The app reads connected USB hardware information to identify and open the camera and determine usable video modes. It also checks available storage and, on supported Android versions, the operating system's thermal status to manage recording. This information is processed on the device and is not sent to the developer.
+
+Settings and diagnostics
+
+Image preferences and previously successful USB camera modes are stored in the app's private storage. Temporary diagnostic events and frame-rate measurements help the app operate and report errors locally. The app has no automatic diagnostic upload or in-app diagnostic export. Android and the USB camera library may retain local system logs. If you choose to provide logs when requesting support, review them first and remove private or identifying information.
+
+Sensitive recordings
+
+This app is intended for training and simulation, not recording patient care. Camera images can still contain personal information, depending on what you record. AirAngel VL does not analyze those images to identify people or infer a diagnosis. You control what is recorded and who can access the resulting media. Obtain any necessary permission before recording another person, and follow the privacy requirements that apply to your use. Do not send identifiable patient recordings to the support address or post them in the public source-code repository.
+
+Retention and deletion
+
+Your saved photos and videos remain in shared media storage until you delete them using your gallery or file manager. Uninstalling AirAngel VL does not delete those saved files. Clearing the app's storage or uninstalling it removes its private settings. Temporary in-memory diagnostics are discarded when the app process ends; Android controls retention of its own system logs.
+
+AirAngel VL disables backup of its private app data. This does not prevent other apps or device services from backing up media in the shared gallery. Delete any separately backed-up copies through the service that holds them. The developer has no server-side copy of your in-app data to delete.
+
+Security and external services
+
+AirAngel VL relies on Android's storage and permission protections. It does not add a separate password or encryption layer to gallery files. Protect your device and review the access and backup settings of other apps that can read your media.
+
+The public source code is available at https://github.com/jacksalvo/AirAngelVL. Visiting that website or contacting support happens through services outside AirAngel VL and is subject to those services' privacy practices. Do not post private recordings or identifying logs in public issues.
+
+Contact and changes
+
+Privacy questions: coppercanyonanesthesia@gmail.com
+
+This policy describes the published AirAngel VL app. Changes to data handling will be reflected in an updated policy and effective date.
