@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="airangel_primary">#1F2933</color>
+    <color name="airangel_accent">#3B82F6</color>
+    <color name="airangel_warn">#F59E0B</color>
+    <color name="airangel_button_bg">#E6E6E6</color>
+    <color name="airangel_button_text">#000000</color>
+    <color name="airangel_button_ripple">#1A000000</color>
+    <color name="airangel_record_red">#E53935</color>
+    <color name="airangel_control_icon">#FFFFFF</color>
+</resources>

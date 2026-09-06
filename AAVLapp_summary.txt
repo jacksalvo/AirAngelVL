@@ -1,0 +1,18 @@
+AirAngel VL 0.2.0 (USB only)
+
+An Android USB UVC inspection-camera app with live preview, JPEG photos and silent H.264/MP4 video.
+
+This repair release keeps Android 7.0/API 24 as its minimum and packages both 32-bit and 64-bit ARM libraries. A phone still needs USB host/OTG support, sufficient power, and compatible UVC hardware/kernel support.
+
+Original framing fits the entire image. Optional centered aspect crops and brightness, contrast and saturation apply to preview and saved media. Image settings persist. The aspect ratio stays fixed during each recording; color tuning remains adjustable.
+
+Press Stop to save. Backgrounding, locking the phone, disconnecting USB or losing the preview stops/finalizes recording. Recording never resumes automatically. Photos and videos are saved in public Pictures/AirAngelVL and Movies/AirAngelVL; Android 7–9 asks for Storage permission when saving.
+
+The signed test APK uses the name AirAngel VL Test and a separate app ID so it can coexist with the original app. The release APK needs the established signing key before distribution as an update.
+
+Wi-Fi, automatic updating and background recording are outside this release.
+
+See VALIDATION.md for checks actually completed and USB_ENDOSCOPE_TESTING.md for pending phone/camera acceptance. Build success alone does not prove hardware compatibility.
+
+This is a beta inspection-camera app, not a medical device. It is not intended for diagnosis, treatment or clinical decision-making.
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/menu_group_aspect"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_aspect_fullscreen"
+            android:checkable="true"
+            android:title="@string/settings_aspect_fullscreen" />
+        <item
+            android:id="@+id/menu_aspect_16_9"
+            android:checkable="true"
+            android:title="@string/settings_aspect_16_9" />
+        <item
+            android:id="@+id/menu_aspect_5_4"
+            android:checkable="true"
+            android:title="@string/settings_aspect_5_4" />
+        <item
+            android:id="@+id/menu_aspect_4_3"
+            android:checkable="true"
+            android:title="@string/settings_aspect_4_3" />
+    </group>
+</menu>

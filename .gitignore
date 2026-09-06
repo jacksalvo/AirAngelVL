@@ -1,0 +1,31 @@
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+**/build/
+/.toolchains/
+/artifacts/
+/captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+
+# Local editor/agent settings and downloaded distributions
+/.claude/
+/.vscode/
+/gradle-8.14/
+
+# Preserved legacy binaries and demo assets are not shipping build inputs
+/camera-usb/src/main/jniLibs/
+/external/AndroidUSBCamera/libuvc/src/main/libs/
+/external/AndroidUSBCamera/libnative/build-arm64*/
+/external/AndroidUSBCamera/app/release/
+/external/AndroidUSBCamera/images/
+
+# Signing material and local credentials
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example

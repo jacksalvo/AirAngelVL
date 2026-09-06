@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.AirAngel.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/airangel_button_text</item>
+        <item name="backgroundTint">@color/airangel_button_bg</item>
+        <item name="rippleColor">@color/airangel_button_ripple</item>
+    </style>
+</resources>
